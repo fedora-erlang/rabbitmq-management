@@ -42,6 +42,8 @@
 
 -define(FRAMING, rabbit_framing_amqp_0_9_1).
 
+-define(MAX_RANGE, 500).
+
 %%--------------------------------------------------------------------
 
 is_authorized(ReqData, Context) ->
@@ -515,7 +517,9 @@ range(Prefix, ReqData) ->
     Age0 = int(Prefix ++ "_age", ReqData),
     Incr0 = int(Prefix ++ "_incr", ReqData),
     if
-        is_integer(Age0) andalso is_integer(Incr0) ->
+        is_integer(Age0) andalso is_integer(Incr0)
+        andalso (Age0 > 0) andalso (Incr0 > 0)
+        andalso ((Age0 div Incr0) =< ?MAX_RANGE) ->
             Age = Age0 * 1000,
             Incr = Incr0 * 1000,
             %% Take floor on queries so we make sure we only return samples
